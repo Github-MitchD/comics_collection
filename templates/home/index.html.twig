@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello Comics Collection
+{% endblock %}
+
+{% block body %}
+	
+	<div class="container mt-4">
+		<ul>
+			{% for item in data.comics %}
+				<li>{{ item.title }}</li>
+			{% endfor %}
+		</ul>
+	</div>
+{% endblock %}
