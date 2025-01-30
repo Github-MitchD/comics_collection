@@ -1,0 +1,76 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Comics Collection - Admin: Les autheurs
+{% endblock %}
+
+{% block body %}
+
+	<div class="container-fluid">
+		<div class="row">
+
+			{% include 'admin/_parts/sidebar.html.twig' %}
+
+			<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+				<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-3 mb-3 border-bottom">
+					<h1 class="h2">Les auteurs</h1>
+					<div class="btn-toolbar mb-2 mb-md-0">
+						<a type="button" href="{{ path('admin_comics_add') }}" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1 me-2">
+							<i class="bi bi-plus-circle"></i>
+							Ajouter un comic
+						</a>
+						<a type="button" href="{{ path('admin_authors_add') }}" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1">
+							<i class="bi bi-plus-circle"></i>
+							Ajouter un auteur
+						</a>
+					</div>
+				</div>
+				<div class="container mt-4">
+					{% for type, messages in app.flashes %}
+						{% for message in messages %}
+							<div class="alert alert-{{ type == 'success' ? 'primary' : 'danger' }} alert-dismissible fade show m-auto mb-4" role="alert">
+								{{ message }}
+								<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+							</div>
+						{% endfor %}
+					{% endfor %}
+				</div>
+				<div class="container">
+					<div class="row justify-content-center">
+						<div class="col-md-8">
+							<form class="row g-3" method="post" action="{{ path('admin_authors_add_post') }}" enctype="multipart/form-data">
+								<div class="col-md-6">
+									<label for="lastname" class="form-label">Nom</label>
+									<input type="text" class="form-control" id="lastname" name="lastname">
+								</div>
+								<div class="col-md-6">
+									<label for="firstname" class="form-label">Prénom</label>
+									<input type="text" class="form-control" id="firstname" name="firstname">
+								</div>
+								<div class="col-md-6">
+									<label for="birthdate" class="form-label">Date de naissance</label>
+									<input type="date" class="form-control" id="birthdate" name="birthdate">
+								</div>
+								<div class="col-md-6">
+									<label for="profileImage" class="form-label">Image de profil</label>
+									<input type="file" class="form-control" id="profileImage" name="profileImage">
+								</div>
+								<div class="col-12">
+									<label for="website" class="form-label">Wikipédia / Site officiel</label>
+									<input type="text" class="form-control" id="website" name="website">
+								</div>
+								<div class="col-12">
+									<label for="biography" class="form-label">Biographie</label>
+									<textarea class="form-control" id="biography" name="biography" rows="5"></textarea>
+								</div>
+								<div class="col-12">
+									<button type="submit" class="btn btn-primary">Ajouter</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</main>
+		</div>
+	</div>
+
+{% endblock %}
