@@ -30,6 +30,26 @@ final class AdminAuthorsController extends AbstractController
     }
 
     /**
+     * Vérifie le token et redirige si nécessaire
+     *
+     * @param Request $request La requête HTTP
+     * @return array|null Le temps restant ou null si redirection
+     */
+    private function checkTokenAndRedirectIfNeeded(Request $request): ?array
+    {
+        $timeLeft = $this->tokenChecker->checkTokenAndGetRemainingTime($request->getSession());
+        if ($timeLeft['status'] === 'not_present') {
+            $this->addFlash('danger', 'Vous devez vous connecter pour accéder à cette page');
+            return $this->redirectToRoute('app_login')->send();
+        }
+        if ($timeLeft['status'] === 'expired') {
+            $this->addFlash('danger', 'Votre session a expiré, veuillez vous reconnecter');
+            return $this->redirectToRoute('app_login')->send();
+        }
+        return $timeLeft;
+    }
+
+    /**
      * Affiche la page admin affichant la liste des auteurs
      * 
      * @param Request $request La requête HTTP
@@ -38,16 +58,8 @@ final class AdminAuthorsController extends AbstractController
     #[Route('/admin/les-auteurs', name: 'admin_authors')]
     public function authors(Request $request): Response
     {
-        $timeLeft = $this->tokenChecker->checkTokenAndGetRemainingTime($request->getSession());
-
-        if ($timeLeft['status'] === 'not_present') {
-            $this->addFlash('danger', 'Vous devez vous connecter pour accéder à cette page');
-            return $this->redirectToRoute('app_login');
-        }
-        if ($timeLeft['status'] === 'expired') {
-            $this->addFlash('danger', 'Votre session a expiré, veuillez vous reconnecter');
-            return $this->redirectToRoute('app_login');
-        }
+        $timeLeft = $this->checkTokenAndRedirectIfNeeded($request);
+        if (is_null($timeLeft)) return new Response();
 
         $response = $this->client->request('GET', 'http://localhost:8989/authors');
         $data = $response->toArray();
@@ -69,16 +81,8 @@ final class AdminAuthorsController extends AbstractController
     #[Route('/admin/les-auteurs/formulaire', name: 'admin_authors_add')]
     public function addAuthor(Request $request): Response
     {
-        $timeLeft = $this->tokenChecker->checkTokenAndGetRemainingTime($request->getSession());
-        
-        if ($timeLeft['status'] === 'not_present') {
-            $this->addFlash('danger', 'Vous devez vous connecter pour accéder à cette page');
-            return $this->redirectToRoute('app_login');
-        }
-        if ($timeLeft['status'] === 'expired') {
-            $this->addFlash('danger', 'Votre session a expiré, veuillez vous reconnecter');
-            return $this->redirectToRoute('app_login');
-        }
+        $timeLeft = $this->checkTokenAndRedirectIfNeeded($request);
+        if (is_null($timeLeft)) return new Response();
         
         return $this->render('admin/authors/add.html.twig', [
             'secondsLeft' => $timeLeft['secondsLeft'],
@@ -96,16 +100,8 @@ final class AdminAuthorsController extends AbstractController
     #[Route('/admin/les-auteurs/ajouter', name: 'admin_authors_add_post', methods: ['POST'])]
     public function addAuthorPost(Request $request): Response
     {
-        $timeLeft = $this->tokenChecker->checkTokenAndGetRemainingTime($request->getSession());
-
-        if ($timeLeft['status'] === 'not_present') {
-            $this->addFlash('danger', 'Vous devez vous connecter pour accéder à cette page');
-            return $this->redirectToRoute('app_login');
-        }
-        if ($timeLeft['status'] === 'expired') {
-            $this->addFlash('danger', 'Votre session a expiré, veuillez vous reconnecter');
-            return $this->redirectToRoute('app_login');
-        }
+        $timeLeft = $this->checkTokenAndRedirectIfNeeded($request);
+        if (is_null($timeLeft)) return new Response();
 
         $lastname = $request->request->get('lastname');
         $firstname = $request->request->get('firstname');
