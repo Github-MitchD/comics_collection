@@ -60,7 +60,7 @@ final class SecurityController extends AbstractController
         $email = $request->request->get('email');
         $password = $request->request->get('password');
         
-        $response = $this->client->request('POST', self::COMICS_API_URL.'/login', [
+        $response = $this->client->request('POST', self::COMICS_API_URL.'/auth/login', [
             'json' => [
                 'email' => $email,
                 'password' => $password,
