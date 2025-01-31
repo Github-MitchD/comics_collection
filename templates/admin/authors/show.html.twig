@@ -1,0 +1,63 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Comics Collection - Admin: Les autheurs
+{% endblock %}
+
+{% block body %}
+
+	<div class="container-fluid">
+		<div class="row">
+
+			{% include 'admin/_parts/sidebar.html.twig' %}
+
+			<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 mb-4 pb-4">
+				<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-3 mb-3 border-bottom">
+					<h1 class="h2">Les auteurs</h1>
+					<div class="btn-toolbar mb-2 mb-md-0">
+						<a type="button" href="{{ path('admin_comics_add') }}" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1 me-2">
+							<i class="bi bi-plus-circle"></i>
+							Ajouter un comic
+						</a>
+						<a type="button" href="{{ path('admin_authors_add') }}" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1">
+							<i class="bi bi-plus-circle"></i>
+							Ajouter un auteur
+						</a>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-2">
+						<img src="http://localhost:8989/public/uploads/authors/{{ data.image }}" class="img-fluid" alt="{{ data.name }}">
+					</div>
+					<div class="col-10">
+						<h2>{{ data.name }}</h2>
+						<p>{{ data.birthdate|date('d/m/Y') }}</p>
+						<p>{{ data.bio }}</p>
+					</div>
+				</div>
+
+				<hr>
+				<h4 class="mb-4">{{ data.comics|length }} Comics dans sa liste</h4>
+
+				<div class="row row-cols-2 row-cols-md-6 g-4">
+					{% for comic in data.comics %}
+						<div class="col">
+							<div class="card h-100">
+								<img src="{{ comic.frontCover }}" class="card-img-top" alt="{{ comic.title }}">
+								<div class="card-body">
+									<h5 class="card-title">{{ comic.title }}</h5>
+									<p class="card-text">Tome
+										{{ comic.tome }}</p>
+								</div>
+								<div class="card-footer">
+									<small class="text-body-secondary">{{ comic.collection }}</small>
+								</div>
+							</div>
+						</div>
+					{% endfor %}
+				</div>
+
+			</main>
+		</div>
+	</div>
+
+{% endblock %}
