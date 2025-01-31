@@ -73,6 +73,40 @@ final class AdminAuthorsController extends AbstractController
     }
 
     /**
+     * Affiche la page admin affichant les détails d'un auteur
+     * 
+     * @param Request $request La requête HTTP
+     * @param string $slug Le slug de l'auteur
+     * @return Response La réponse HTTP
+     */
+    #[Route('/admin/les-auteurs/details/{slug}', name: 'admin_authors_show', methods: ['GET'])]
+    public function showAuthor(Request $request, string $slug): Response
+    {
+        $timeLeft = $this->checkTokenAndRedirectIfNeeded($request);
+        if (is_null($timeLeft)) return new Response();
+
+        $apiUrl = 'http://localhost:8989/authors/name/'.$slug;
+        
+        $response = $this->client->request('GET', $apiUrl);
+        $status = $response->getStatusCode();
+        if ($status >= 200 && $status < 300) {
+            // Récupère les données JSON
+            $author = $response->toArray(); // renvoie un tableau associatif
+        } else {
+            $errorContent = $response->getContent(false);
+            $this->addFlash('danger', 'Erreur API Node: ' . $errorContent);
+            return $this->redirectToRoute('admin_authors');
+        }
+        return $this->render('admin/authors/show.html.twig', [
+            'data' => $author,
+            'secondsLeft' => $timeLeft['secondsLeft'],
+            'minutesLeft' => $timeLeft['minutesLeft'],
+            'hoursLeft'   => $timeLeft['hoursLeft'],
+        ]);
+    }
+
+
+    /**
      * Affiche le formulaire d'ajout d'un auteur
      *
      * @param Request $request La requête HTTP
@@ -109,24 +143,32 @@ final class AdminAuthorsController extends AbstractController
         $website = $request->request->get('website');
         $biography = $request->request->get('biography');
 
+        if (empty($lastname) || empty($firstname)) {
+            $this->addFlash('danger', 'Veuillez renseigner un nom et un prénom.');
+            return $this->redirectToRoute('admin_authors_add');
+        }
+        $fullname = trim($firstname . ' ' . $lastname);
+        $slug = strtolower(str_replace(' ', '-', $fullname));
+
         // Récupére le fichier (Symfony stocke ça dans $request->files)
         $profileImage = $request->files->get('profileImage');
+
+        // Vérification du type d'image et extension
+        $validExtensions = ['jpeg', 'jpg', 'png'];
+        $extension = $profileImage->getClientOriginalExtension();
 
         if (!$profileImage) {
             $this->addFlash('danger', 'Aucune image n’a été transmise.');
             return $this->redirectToRoute('admin_authors_add');
         }  
-        if (!in_array($profileImage->getMimeType(), ['image/jpeg','image/jpg','image/png'])) {
+        if (!in_array(strtolower($extension), $validExtensions)) {
             $this->addFlash('danger', 'Format d\'image non supporté.');
             return $this->redirectToRoute('admin_authors_add');
-        }      
-        if (empty($lastname) || empty($firstname)) {
-            $this->addFlash('danger', 'Veuillez renseigner un nom et un prénom.');
-            return $this->redirectToRoute('admin_authors_add');
-        }
-        
-        $fullname = trim($firstname . ' ' . $lastname);
-        $slug = strtolower(str_replace(' ', '-', $fullname));
+        }    
+        // Renomme le fichier avec une extension appropriée
+        $tempFilePath = $profileImage->getPathname();
+        $newFilePath = tempnam(sys_get_temp_dir(), 'author_') . '.' . $extension;
+        rename($tempFilePath, $newFilePath);
 
         // Envoie un multipart/form-data, donc on doit utiliser 'body' avec un tableau de champs et de fichiers
         try {
@@ -140,7 +182,7 @@ final class AdminAuthorsController extends AbstractController
                     'birthdate' => htmlspecialchars($birthdate, ENT_QUOTES, 'UTF-8'),
                     'bio' => htmlspecialchars($biography, ENT_QUOTES, 'UTF-8'),
                     'website' => htmlspecialchars($website, ENT_QUOTES, 'UTF-8'),
-                    'image' => fopen($profileImage->getPathname(), 'r'),
+                    'image' => fopen($newFilePath, 'r'),
                 ],
             ]);
 
