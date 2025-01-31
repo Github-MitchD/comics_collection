@@ -10,7 +10,7 @@
 		
 			{% include 'admin/_parts/sidebar.html.twig' %}
 
-			<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+			<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 mb-4 pb-4">
 				<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-3 mb-3 border-bottom">
 					<h1 class="h2">Les auteurs</h1>
 					<div class="btn-toolbar mb-2 mb-md-0">
@@ -24,33 +24,22 @@
 						</a>
 					</div>
 				</div>
-				<div class="table-responsive small">
-					<table class="table table-striped table-sm">
-						<thead>
-							<tr>
-								<th scope="col">#</th>
-								<th scope="col">Image</th>
-								<th scope="col">Nom</th>
-								<th scope="col">Slug</th>
-								<th scope="col">Date de naissance</th>
-								<th scope="col">Website</th>
-								<th scope="col">Biographie</th>
-							</tr>
-						</thead>
-						<tbody>
-							{% for author in data.authors %}
-								<tr>
-									<td>{{author.id}}</td>
-									<td><img src="{{ author.image }}" alt="{{ author.name }}" class="img-thumbnail rounded-circle" width="75"></td>
-									<td>{{author.name}}</td>
-									<td>{{author.slug}}</td>
-									<td>{{ author.birthdate|date('d/m/Y') }}</td>
-									<td>{{author.website}}</td>
-									<td class="text-wrap" style="max-width: 200px;">{{ author.bio }}</td>
-								</tr>
-							{% endfor %}
-						</tbody>
-					</table>
+				<div class="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-4">
+					{% for author in data.authors %}
+						<div class="col">
+							<a href="{{ path('admin_authors_show', { slug: author.slug }) }}" class="text-decoration-none">
+								<div class="card h-100 text-center" style="border-radius:0;border-top-left-radius: 50%;border-top-right-radius: 50%;">
+									<img src="{{ author.image }}" class="rounded-circle border border-3 border-secondary mx-auto d-block mt-2" width="140" height="140" alt="...">
+									<div class="card-body">
+										<h5 class="card-title text-secondary">{{author.name}}</h5>
+									</div>
+									<div class="card-footer">
+										<small class="text-body-secondary">00 Comics</small>
+									</div>
+								</div>
+							</a>
+						</div>
+					{% endfor %}
 				</div>
 			</main>
 		</div>
