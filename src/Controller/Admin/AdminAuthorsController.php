@@ -85,8 +85,8 @@ final class AdminAuthorsController extends AbstractController
         $timeLeft = $this->checkTokenAndRedirectIfNeeded($request);
         if (is_null($timeLeft)) return new Response();
 
-        $apiUrl = 'http://localhost:8989/authors/name/'.$slug;
-        
+        $apiUrl = 'http://localhost:8989/authors/name/' . $slug;
+
         $response = $this->client->request('GET', $apiUrl);
         $status = $response->getStatusCode();
         if ($status >= 200 && $status < 300) {
@@ -203,5 +203,144 @@ final class AdminAuthorsController extends AbstractController
         }
 
         return $this->redirectToRoute('admin_authors_add');
+    }
+
+    /**
+     * Affiche le formulaire de modification d'un auteur
+     *
+     * @param Request $request La requête HTTP
+     * @param string $slug Le slug de l'auteur à modifier
+     * @return Response La réponse HTTP
+     */
+    #[Route('/admin/les-auteurs/form/{slug}', name: 'admin_authors_edit', methods: ['GET'])]
+    public function editAuthor(Request $request, string $slug): Response
+    {
+        $timeLeft = $this->checkTokenAndRedirectIfNeeded($request);
+        if (is_null($timeLeft)) return new Response();
+
+        // Récupère les informations de l'auteur via l'API
+        $apiUrl = 'http://localhost:8989/authors/name/' . $slug;
+        $response = $this->client->request('GET', $apiUrl);
+        $status = $response->getStatusCode();
+
+        if ($status >= 200 && $status < 300) {
+            // Récupère les données de l'auteur
+            $author = $response->toArray(); // Tableau associatif
+
+            // Découpe le name en firstname et lastname
+            $fullname = $author['name'];
+            $nameParts = explode(' ', $fullname);
+            $firstname = array_shift($nameParts);
+            $lastname = implode(' ', $nameParts);
+
+            // Ajoute les firstname et lastname aux données de l'auteur
+            $author['firstname'] = $firstname;
+            $author['lastname'] = $lastname;
+        } else {
+            $errorContent = $response->getContent(false);
+            $this->addFlash('danger', 'Erreur API Node: ' . $errorContent);
+            return $this->redirectToRoute('admin_authors');
+        }
+        return $this->render('admin/authors/edit.html.twig', [
+            'data' => $author,
+            'secondsLeft' => $timeLeft['secondsLeft'],
+            'minutesLeft' => $timeLeft['minutesLeft'],
+            'hoursLeft'   => $timeLeft['hoursLeft'],
+        ]);
+    }        
+
+    /**
+     * Traite la requête de modification d'un auteur
+     *
+     * @param Request $request La requête HTTP
+     * @param int $id L'identifiant de l'auteur à modifier
+     * @return Response La réponse HTTP
+     */
+    #[Route('/admin/les-auteurs/modifier/{id}', name: 'admin_authors_edit_post', methods: ['POST'])]
+    public function editAuthorPost(Request $request, int $id): Response
+    {
+        // Vérification du token
+        $timeLeft = $this->checkTokenAndRedirectIfNeeded($request);
+        if (null === $timeLeft) {
+            return new Response(); // Ou éventuellement un redirect quelque part
+        }
+
+        // Récupération des champs
+        $lastname = $request->request->get('lastname');
+        $firstname = $request->request->get('firstname');
+        $birthdate = $request->request->get('birthdate');
+        $website = $request->request->get('website');
+        $biography = $request->request->get('biography');
+        $profileImage = $request->files->get('profileImage');
+
+        // Vérifications minimales
+        if (empty($lastname) || empty($firstname)) {
+            $this->addFlash('danger', 'Veuillez renseigner un nom et un prénom.');
+            return $this->redirect($request->headers->get('referer'));
+        }
+
+        // Construction des champs dérivés
+        $fullname = trim($firstname . ' ' . $lastname);
+        $newSlug = strtolower(str_replace(' ', '-', $fullname));
+
+        // Préparation des données de base
+        $data = [
+            'name'     => htmlspecialchars($fullname, ENT_QUOTES, 'UTF-8'),
+            'slug'     => htmlspecialchars($newSlug, ENT_QUOTES, 'UTF-8'),
+            'birthdate' => htmlspecialchars($birthdate, ENT_QUOTES, 'UTF-8'),
+            'bio'      => htmlspecialchars($biography, ENT_QUOTES, 'UTF-8'),
+            'website'  => htmlspecialchars($website, ENT_QUOTES, 'UTF-8'),
+        ];
+
+        try {
+            if ($profileImage) {
+                // Cas avec image : on prépare l’upload
+                $validExtensions = ['jpeg', 'jpg', 'png'];
+                $extension = $profileImage->getClientOriginalExtension();
+                if (!in_array(strtolower($extension), $validExtensions)) {
+                    $this->addFlash('danger', 'Format d\'image non supporté.');
+                    return $this->redirectToRoute('admin_authors_edit', ['id' => $id]);
+                }
+
+                // On déplace l’image vers un fichier temporaire
+                $tempFilePath = $profileImage->getPathname();
+                $newFilePath = tempnam(sys_get_temp_dir(), 'author_') . '.' . $extension;
+                rename($tempFilePath, $newFilePath);
+
+                // On ouvre le fichier pour le multi-part
+                $imageResource = fopen($newFilePath, 'r');
+
+                // Requête en multipart
+                $response = $this->client->request('PUT', 'http://localhost:8989/authors/id/withImage/' . $id, [
+                    'headers' => [
+                        'Authorization' => 'Bearer ' . $request->getSession()->get('comics_collection_jwt_token'),
+                    ],
+                    'body' => array_merge($data, [
+                        'image' => $imageResource
+                    ]),
+                ]);
+            } else {
+                // Cas sans image
+                $response = $this->client->request('PUT', 'http://localhost:8989/authors/id/withoutImage/' . $id, [
+                    'headers' => [
+                        'Authorization' => 'Bearer ' . $request->getSession()->get('comics_collection_jwt_token'),
+                    ],
+                    'json' => $data,
+                ]);
+            }
+
+            // Vérification du statut
+            $statusCode = $response->getStatusCode();
+            if ($statusCode >= 200 && $statusCode < 300) {
+                $this->addFlash('success', sprintf('Auteur "%s" mis à jour avec succès.', $fullname));
+            } else {
+                $errorContent = $response->getContent(false);
+                $this->addFlash('danger', 'Erreur API Node: ' . $errorContent);
+            }
+        } catch (\Exception $e) {
+            $this->addFlash('danger', 'Impossible de contacter l’API Node: ' . $e->getMessage());
+        }
+
+        return $this->redirectToRoute('admin_authors');
     }
 }
