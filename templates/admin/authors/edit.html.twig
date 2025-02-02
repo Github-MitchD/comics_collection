@@ -35,40 +35,51 @@
 					{% endfor %}
 				</div>
 				<div class="container">
+				{{ data.id }}
 					<div class="row justify-content-center">
 						<div class="col-md-8">
 							<form class="row g-3" method="post" action="{{ path('admin_authors_edit_post', { id : data.id}) }}" enctype="multipart/form-data">
 								<div class="col-md-6">
-									<label for="lastname" class="form-label">Nom</label>
-									<input type="text" class="form-control" id="lastname" name="lastname" value="{{ data.lastname }}">
+									<div class="mb-2">
+										<label for="profileImage" class="form-label">Image de profil<small class="text-muted">
+												(format .jpeg, .jpg, .png)</small>
+										</label>
+										{% if data.image %}
+											<div class="mb-2">
+												<img src="http://localhost:8989/public/uploads/authors/{{ data.image }}" alt="Image de profil actuelle" class="img-thumbnail" style="max-width: 200px;">
+											</div>
+										{% endif %}
+										<input type="file" class="form-control" id="profileImage" name="profileImage">
+									</div>
 								</div>
 								<div class="col-md-6">
-									<label for="firstname" class="form-label">Prénom</label>
-									<input type="text" class="form-control" id="firstname" name="firstname" value="{{ data.firstname }}">
-								</div>
-								<div class="col-md-6">
-									<label for="birthdate" class="form-label">Date de naissance</label>
-									<input type="date" class="form-control" id="birthdate" name="birthdate" value="{{ data.birthdate|date('Y-m-d') }}">
-								</div>
-								<div class="col-md-6">
-									<label for="profileImage" class="form-label">Image de profil<small class="text-muted"> (format .jpeg, .jpg, .png)</small></label>
-									{% if data.image %}
-										<div class="mb-3">
-											<img src="http://localhost:8989/public/uploads/authors/{{ data.image }}" alt="Image de profil actuelle" class="img-thumbnail" style="max-width: 200px;">
-										</div>
-									{% endif %}
-									<input type="file" class="form-control" id="profileImage" name="profileImage">
+									<div class="mb-2">
+										<label for="lastname" class="form-label">Nom</label>
+										<input type="text" class="form-control" id="lastname" name="lastname" value="{{ data.lastname }}">
+									</div>
+									<div class="mb-2">
+										<label for="firstname" class="form-label">Prénom</label>
+										<input type="text" class="form-control" id="firstname" name="firstname" value="{{ data.firstname }}">
+									</div>
+									<div class="mb-2">
+										<label for="birthdate" class="form-label">Date de naissance</label>
+										<input type="date" class="form-control" id="birthdate" name="birthdate" value="{{ data.birthdate|date('Y-m-d') }}">
+									</div>
 								</div>
 								<div class="col-12">
-									<label for="website" class="form-label">Wikipédia / Site officiel</label>
-									<input type="text" class="form-control" id="website" name="website" value="{{ data.website }}">
+									<div class="mb-2">
+										<label for="website" class="form-label">Wikipédia / Site officiel</label>
+										<input type="text" class="form-control" id="website" name="website" value="{{ data.website }}">
+									</div>
 								</div>
 								<div class="col-12">
-									<label for="biography" class="form-label">Biographie</label>
-									<textarea class="form-control" id="biography" name="biography" rows="5">{{ data.bio }}</textarea>
+									<div class="mb-2">
+										<label for="biography" class="form-label">Biographie</label>
+										<textarea class="form-control" id="biography" name="biography" rows="5">{{ data.bio }}</textarea>
+									</div>
 								</div>
 								<div class="col-12">
-									<button type="submit" class="btn btn-primary">Modifier</button>
+									<button type="submit" class="btn btn-primary">Valider</button>
 								</div>
 							</form>
 						</div>
