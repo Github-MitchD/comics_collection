@@ -36,10 +36,10 @@
 									<i class="bi bi-pencil"></i>
 									Modifier
 								</a>
-								<a type="button" href="{{ path('admin_authors_delete', {id:data.id}) }}" class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1">
+								<button type="button" class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#modalConfirmDelete-{{ data.id }}">
 									<i class="bi bi-trash"></i>
 									Supprimer
-								</a>
+								</button>
 							</div>
 						</div>
 						<p>{{ data.birthdate|date('d/m/Y') }}</p>
@@ -67,6 +67,32 @@
 							</div>
 						</div>
 					{% endfor %}
+				</div>
+
+				<!-- Modale de confirmation de suppression -->
+				<div class="modal fade" id="modalConfirmDelete-{{ data.id }}" tabindex="-1" aria-hidden="true">
+					<div class="modal-dialog modal-dialog-centered">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title">Confirmer la suppression</h5>
+								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+							</div>
+							<div class="modal-body">
+								Voulez-vous vraiment supprimer l’auteur
+								<strong>{{ data.name }}</strong>
+								?
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+								<form action="{{ path('admin_authors_delete', {id: data.id}) }}" method="POST" style="display:inline;">
+									<input type="hidden" name="_token" value="{{ csrf_token('delete_author_' ~ data.id) }}">
+									<button type="submit" class="btn btn-danger">
+										Oui, supprimer
+									</button>
+								</form>
+							</div>
+						</div>
+					</div>
 				</div>
 
 			</main>
