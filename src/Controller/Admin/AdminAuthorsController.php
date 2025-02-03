@@ -152,15 +152,15 @@ final class AdminAuthorsController extends AbstractController
 
         // Récupére le fichier (Symfony stocke ça dans $request->files)
         $profileImage = $request->files->get('profileImage');
+        if (!$profileImage) {
+            $this->addFlash('danger', 'Aucune image n’a été transmise.');
+            return $this->redirectToRoute('admin_authors_add');
+        }  
 
         // Vérification du type d'image et extension
         $validExtensions = ['jpeg', 'jpg', 'png'];
         $extension = $profileImage->getClientOriginalExtension();
 
-        if (!$profileImage) {
-            $this->addFlash('danger', 'Aucune image n’a été transmise.');
-            return $this->redirectToRoute('admin_authors_add');
-        }  
         if (!in_array(strtolower($extension), $validExtensions)) {
             $this->addFlash('danger', 'Format d\'image non supporté.');
             return $this->redirectToRoute('admin_authors_add');
@@ -202,7 +202,7 @@ final class AdminAuthorsController extends AbstractController
             $this->addFlash('danger', 'Impossible de contacter l’API Node: ' . $e->getMessage());
         }
 
-        return $this->redirectToRoute('admin_authors_add');
+        return $this->redirectToRoute('admin_authors');
     }
 
     /**
@@ -349,11 +349,17 @@ final class AdminAuthorsController extends AbstractController
      * @param int $id L'identifiant de l'auteur à supprimer
      * @return Response La réponse HTTP
      */
-    #[Route('/admin/les-auteurs/supprimer/{id}', name: 'admin_authors_delete', methods: ['GET'])]
+    #[Route('/admin/les-auteurs/supprimer/{id}', name: 'admin_authors_delete', methods: ['POST'])]
     public function deleteAuthor(Request $request, int $id): Response
     {
         $timeLeft = $this->checkTokenAndRedirectIfNeeded($request);
         if (is_null($timeLeft)) return new Response();
+
+        // Vérification du token CSRF
+        $submittedToken = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('delete_author_'.$id, $submittedToken)) {
+            throw $this->createAccessDeniedException('Jeton CSRF invalide.');
+        }
 
         try {
             $response = $this->client->request('DELETE', 'http://localhost:8989/authors/' . $id, [
