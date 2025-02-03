@@ -261,9 +261,7 @@ final class AdminAuthorsController extends AbstractController
     {
         // Vérification du token
         $timeLeft = $this->checkTokenAndRedirectIfNeeded($request);
-        if (null === $timeLeft) {
-            return new Response(); // Ou éventuellement un redirect quelque part
-        }
+        if (is_null($timeLeft)) return new Response();
 
         // Récupération des champs
         $lastname = $request->request->get('lastname');
@@ -333,6 +331,41 @@ final class AdminAuthorsController extends AbstractController
             $statusCode = $response->getStatusCode();
             if ($statusCode >= 200 && $statusCode < 300) {
                 $this->addFlash('success', sprintf('Auteur "%s" mis à jour avec succès.', $fullname));
+            } else {
+                $errorContent = $response->getContent(false);
+                $this->addFlash('danger', 'Erreur API Node: ' . $errorContent);
+            }
+        } catch (\Exception $e) {
+            $this->addFlash('danger', 'Impossible de contacter l’API Node: ' . $e->getMessage());
+        }
+
+        return $this->redirectToRoute('admin_authors');
+    }
+
+    /**
+     * Supprime un auteur
+     *
+     * @param Request $request La requête HTTP
+     * @param int $id L'identifiant de l'auteur à supprimer
+     * @return Response La réponse HTTP
+     */
+    #[Route('/admin/les-auteurs/supprimer/{id}', name: 'admin_authors_delete', methods: ['GET'])]
+    public function deleteAuthor(Request $request, int $id): Response
+    {
+        $timeLeft = $this->checkTokenAndRedirectIfNeeded($request);
+        if (is_null($timeLeft)) return new Response();
+
+        try {
+            $response = $this->client->request('DELETE', 'http://localhost:8989/authors/' . $id, [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $request->getSession()->get('comics_collection_jwt_token'),
+                ],
+            ]);
+
+            // Vérification du statut
+            $statusCode = $response->getStatusCode();
+            if ($statusCode >= 200 && $statusCode < 300) {
+                $this->addFlash('success', 'Auteur supprimé avec succès.');
             } else {
                 $errorContent = $response->getContent(false);
                 $this->addFlash('danger', 'Erreur API Node: ' . $errorContent);
