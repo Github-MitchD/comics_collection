@@ -1,6 +1,6 @@
 {% extends 'base_admin.html.twig' %}
 
-{% block title %}Comics Collection - Admin: Les autheurs
+{% block title %}Comics Collection - Admin: Les auteurs
 {% endblock %}
 
 {% block body %}
@@ -44,7 +44,7 @@
 										<h5 class="card-title text-secondary">{{author.name}}</h5>
 									</div>
 									<div class="card-footer">
-										<small class="text-body-secondary">00 Comics</small>
+										<small class="text-body-secondary">{{author.comicsCount}} Comics</small>
 									</div>
 								</div>
 							</a>
