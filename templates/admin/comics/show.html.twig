@@ -84,7 +84,7 @@
 							</div>
 							<div class="modal-footer">
 								<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-								<form action="" method="POST" style="display:inline;">
+								<form action="{{ path('admin_comics_delete', { id: data.id }) }}" method="POST" style="display:inline;">
 									<input type="hidden" name="_token" value="{{ csrf_token('delete_comic_' ~ data.id) }}">
 									<button type="submit" class="btn btn-danger">
 										Oui, supprimer
