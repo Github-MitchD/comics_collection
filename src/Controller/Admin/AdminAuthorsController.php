@@ -148,7 +148,13 @@ final class AdminAuthorsController extends AbstractController
             return $this->redirectToRoute('admin_authors_add');
         }
         $fullname = trim($firstname . ' ' . $lastname);
-        $slug = strtolower(str_replace(' ', '-', $fullname));
+        $slug = transliterator_transliterate('Any-Latin; Latin-ASCII', $fullname);
+        // Remplace les espaces et caractères spéciaux par des tirets
+        $slug = preg_replace('/[^a-zA-Z0-9]+/', '-', $slug);
+        // Supprime les tirets en début et fin de chaîne
+        $slug = trim($slug, '-');
+        // Convertit en minuscules
+        $slug = strtolower($slug);
 
         // Récupére le fichier (Symfony stocke ça dans $request->files)
         $profileImage = $request->files->get('profileImage');
@@ -177,11 +183,11 @@ final class AdminAuthorsController extends AbstractController
                     'Authorization' => 'Bearer ' . $request->getSession()->get('comics_collection_jwt_token'),
                 ],
                 'body' => [
-                    'name' => htmlspecialchars($fullname, ENT_QUOTES, 'UTF-8'),
-                    'slug' => htmlspecialchars($slug, ENT_QUOTES, 'UTF-8'),
-                    'birthdate' => htmlspecialchars($birthdate, ENT_QUOTES, 'UTF-8'),
-                    'bio' => htmlspecialchars($biography, ENT_QUOTES, 'UTF-8'),
-                    'website' => htmlspecialchars($website, ENT_QUOTES, 'UTF-8'),
+                    'name' => strip_tags($fullname), // strip_tags Enlève les balises HTML
+                    'slug' => strip_tags($slug),
+                    'birthdate' => strip_tags($birthdate),
+                    'bio' => strip_tags($biography),
+                    'website' => strip_tags($website),
                     'image' => fopen($newFilePath, 'r'),
                 ],
             ]);
