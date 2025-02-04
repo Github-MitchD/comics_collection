@@ -1,0 +1,85 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Comics Collection - Admin: Les comics
+{% endblock %}
+
+{% block body %}
+
+	<div class="container-fluid">
+		<div class="row">
+
+			{% include 'admin/_parts/sidebar.html.twig' %}
+
+			<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 mb-4 pb-4">
+				<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-3 mb-3 border-bottom">
+					<h1 class="h2">Les comics</h1>
+					<div class="btn-toolbar mb-2 mb-md-0">
+						<a type="button" href="{{ path('admin_comics_add') }}" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1 me-2">
+							<i class="bi bi-plus-circle"></i>
+							Ajouter un comic
+						</a>
+						<a type="button" href="{{ path('admin_authors_add') }}" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1">
+							<i class="bi bi-plus-circle"></i>
+							Ajouter un auteur
+						</a>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-2">
+						<img src="http://localhost:8989/public/uploads/comics/{{ data.frontCover }}" class="img-fluid" alt="{{ data.title }}">
+					</div>
+					<div class="col-10">
+						<div class="d-flex justify-content-between align-items-center">
+							<h2>{{ data.title|e }}</h2>
+							<div class="d-flex">
+								<a type="button" href="{{ path('admin_authors_edit', {slug:data.slug}) }}" class="btn btn-sm btn-outline-warning d-flex align-items-center gap-1 me-2">
+									<i class="bi bi-pencil"></i>
+									Modifier
+								</a>
+								<button type="button" class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#modalConfirmDelete-{{ data.id }}">
+									<i class="bi bi-trash"></i>
+									Supprimer
+								</button>
+							</div>
+						</div>
+						<p>Tome: {{ data.tome }}</p>
+						<p>Collection: {{ data.collection|e }}</p>
+						<p>{{ data.description|e }}</p>
+					</div>
+				</div>
+
+				<hr>
+				<h4 class="mb-4">Auteur</h4>		
+				<p>TODO : ajouter l'auteur du comic</p>		
+
+				<!-- Modale de confirmation de suppression -->
+				<div class="modal fade" id="modalConfirmDelete-{{ data.id }}" tabindex="-1" aria-hidden="true">
+					<div class="modal-dialog modal-dialog-centered">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title">Confirmer la suppression</h5>
+								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+							</div>
+							<div class="modal-body">
+								Voulez-vous vraiment supprimer le comic
+								<strong>{{ data.title }}</strong>
+								?
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+								<form action="" method="POST" style="display:inline;">
+									<input type="hidden" name="_token" value="{{ csrf_token('delete_comic_' ~ data.id) }}">
+									<button type="submit" class="btn btn-danger">
+										Oui, supprimer
+									</button>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</main>
+		</div>
+	</div>
+
+{% endblock %}
