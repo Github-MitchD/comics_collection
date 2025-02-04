@@ -257,4 +257,101 @@ final class AdminComicsController extends AbstractController
             'hoursLeft'   => $timeLeft['hoursLeft'],
         ]);
     }
+
+    /**
+     * Traite le formulaire de modification d'un comic
+     * 
+     * @param Request $request La requête HTTP
+     * @param int $id L'identifiant du comic à modifier
+     * @return Response La réponse HTTP
+     */
+    #[Route('/admin/les-comics/modifier/{id}', name: 'admin_comics_edit_post', methods: ['POST'])]
+    public function editComicPost(Request $request, int $id): Response
+    {
+        // Vérification du token
+        $timeLeft = $this->checkTokenAndRedirectIfNeeded($request);
+        if (is_null($timeLeft)) return new Response();
+
+        // Récupération des champs du formulaire
+        $title = $request->request->get('title');
+        $collection = $request->request->get('collection');
+        $tome = $request->request->get('tome');
+        $authorId = $request->request->get('authorId');
+        $description = $request->request->get('description');
+        $frontCover = $request->files->get('frontCover');
+
+        // Supprime les accents
+        $slug = transliterator_transliterate('Any-Latin; Latin-ASCII', $title);
+        // Remplace les espaces et caractères spéciaux par des tirets
+        $slug = preg_replace('/[^a-zA-Z0-9]+/', '-', $slug);
+        // Supprime les tirets en début et fin de chaîne
+        $slug = trim($slug, '-');
+        // Convertit en minuscules
+        $slug = strtolower($slug);
+
+        // Préparation des données de base
+        $data = [
+            'title' => strip_tags($title),
+            'slug' => strip_tags($slug),
+            'collection' => strip_tags($collection),
+            'tome' => strip_tags($tome),
+            'description' => strip_tags($description),
+            'authorId' => intval($authorId)
+        ];
+
+        try {
+            if ($frontCover) {
+                // Cas avec image : on prépare l’upload
+                $validExtensions = ['jpg', 'jpeg', 'png'];
+                $extension = $frontCover->getClientOriginalExtension();
+                if (!in_array(strtolower($extension), $validExtensions)) {
+                    $this->addFlash('danger', 'Le fichier doit être une image de type jpg, jpeg ou png');
+                    return $this->redirectToRoute('admin_comics_edit', ['id' => $id]);
+                }
+
+                // Renomme le fichier
+                $tempFilePath = $frontCover->getPathname();
+                $newFilePath = tempnam(sys_get_temp_dir(), 'comic_') . '.' . $extension;
+                rename($tempFilePath, $newFilePath);
+
+                // On ouvre le fichier pour le multi-part
+                $imageResource = fopen($newFilePath, 'r');
+
+                // Envoie un multipart/form-data, donc on doit utiliser 'body' avec un tableau de champs et de fichiers
+                $response = $this->client->request('PUT', 'http://localhost:8989/comics/id/withImage/' . $id, [
+                    'headers' => [
+                        'Authorization' => 'Bearer ' . $request->getSession()->get('comics_collection_jwt_token'),
+                    ],
+                    'body' => array_merge($data, [
+                        'frontCover' => $imageResource
+                    ]),
+                ]);
+            } else {
+                // Cas sans image : on envoie les données de base
+                $response = $this->client->request('PUT', 'http://localhost:8989/comics/id/withoutImage/' . $id, [
+                    'headers' => [
+                        'Authorization' => 'Bearer ' . $request->getSession()->get('comics_collection_jwt_token'),
+                    ],
+                    'json' => $data,
+                ]);
+            }
+
+            // Vérifie la réponse
+            $statusCode = $response->getStatusCode();
+            if ($statusCode >= 200 && $statusCode < 300) {
+                // Succès
+                $this->addFlash('success', sprintf('Comic "%s" mis à jour avec succès.', $title));
+                return $this->redirectToRoute('admin_comics');
+            } else {
+                // Erreur renvoyée par l’API
+                $errorContent = $response->getContent(false);
+                $this->addFlash('danger', 'Erreur API Node: ' . $errorContent);
+                return $this->redirectToRoute('admin_comics_edit', ['id' => $id]);
+            }
+        } catch (\Exception $e) {
+            $this->addFlash('danger', 'Impossible de traiter l’image: ' . $e->getMessage());
+            return $this->redirectToRoute('admin_comics_edit', ['id' => $id]);
+        }
+        return $this->redirectToRoute('admin_comics');
+    }
 }
