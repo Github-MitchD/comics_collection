@@ -55,14 +55,14 @@
 					{% for comic in data.comics %}
 						<div class="col">
 							<div class="card h-100">
-								<img src="{{ comic.frontCover }}" class="card-img-top" alt="{{ comic.title }}">
+								<img src="http://localhost:8989/public/uploads/comics/{{ comic.frontCover }}" class="card-img-top" alt="{{ comic.title }}">
 								<div class="card-body">
-									<h5 class="card-title">{{ comic.title|e }}</h5>
+									<h6 class="card-title">{{ comic.title|e }}</h6>
 									<p class="card-text">Tome
 										{{ comic.tome }}</p>
 								</div>
 								<div class="card-footer">
-									<small class="text-body-secondary">{{ comic.collection|e }}</small>
+									<small class="text-body-secondary">Collection {{ comic.collection|e }}</small>
 								</div>
 							</div>
 						</div>
