@@ -60,8 +60,15 @@ final class AdminComicsController extends AbstractController
     {
         $timeLeft = $this->checkTokenAndRedirectIfNeeded($request);
         if (is_null($timeLeft)) return new Response();
-        
-        $response = $this->client->request('GET', 'http://localhost:8989/comics');        
+
+        $page = $request->query->get('page', 1);
+        $limit = 10;
+        $response = $this->client->request('GET', 'http://localhost:8989/comics', [
+            'query' => [
+                'page' => $page,
+                'limit' => $limit
+            ]
+        ]);       
         $data = $response->toArray();
 
         return $this->render('admin/comics/index.html.twig', [
@@ -69,6 +76,8 @@ final class AdminComicsController extends AbstractController
             'secondsLeft' => $timeLeft['secondsLeft'],
             'minutesLeft' => $timeLeft['minutesLeft'],
             'hoursLeft'   => $timeLeft['hoursLeft'],
+            'currentPage' => $page,
+            'totalPages' => $data['pages']
         ]);
     }
 
