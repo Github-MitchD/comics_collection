@@ -354,4 +354,48 @@ final class AdminComicsController extends AbstractController
         }
         return $this->redirectToRoute('admin_comics');
     }
+
+    /**
+     * Supprime un comic
+     * 
+     * @param Request $request La requête HTTP
+     * @param int $id L'identifiant du comic à supprimer
+     * @return Response La réponse HTTP
+     */
+    #[Route('/admin/les-comics/supprimer/{id}', name: 'admin_comics_delete', methods: ['POST'])]
+    public function deleteComic(Request $request, int $id): Response
+    {
+        // Vérification du token
+        $timeLeft = $this->checkTokenAndRedirectIfNeeded($request);
+        if (is_null($timeLeft)) return new Response();
+
+        // Vérification du token CSRF
+        $submittedToken = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('delete_comic_'.$id, $submittedToken)) {
+            throw $this->createAccessDeniedException('Jeton CSRF invalide.');
+        }
+
+        try {
+            $response = $this->client->request('DELETE', 'http://localhost:8989/comics/' . $id, [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $request->getSession()->get('comics_collection_jwt_token'),
+                ],
+            ]);
+
+            // Vérifie la réponse
+            $statusCode = $response->getStatusCode();
+            if ($statusCode >= 200 && $statusCode < 300) {
+                // Succès
+                $this->addFlash('success', 'Comic supprimé avec succès.');
+            } else {
+                // Erreur renvoyée par l’API
+                $errorContent = $response->getContent(false);
+                $this->addFlash('danger', 'Erreur API Node: ' . $errorContent);
+            }
+        } catch (\Exception $e) {
+            $this->addFlash('danger', 'Impossible de contacter l’API Node: ' . $e->getMessage());
+        }
+
+        return $this->redirectToRoute('admin_comics');
+    }
 }
