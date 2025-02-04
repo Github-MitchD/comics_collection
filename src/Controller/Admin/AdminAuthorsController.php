@@ -302,7 +302,7 @@ final class AdminAuthorsController extends AbstractController
                 $validExtensions = ['jpeg', 'jpg', 'png'];
                 $extension = $profileImage->getClientOriginalExtension();
                 if (!in_array(strtolower($extension), $validExtensions)) {
-                    $this->addFlash('danger', 'Format d\'image non supporté.');
+                    $this->addFlash('danger', 'Le fichier doit être une image de type jpg, jpeg ou png');
                     return $this->redirectToRoute('admin_authors_edit', ['id' => $id]);
                 }
 
