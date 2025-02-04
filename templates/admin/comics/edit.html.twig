@@ -37,7 +37,7 @@
 				<div class="container">
 					<div class="row justify-content-center">
 						<div class="col-md-10">
-							<form class="row g-3" method="post" action="" enctype="multipart/form-data">
+							<form class="row g-3" method="post" action="{{ path('admin_comics_edit_post', { id : data.id}) }}" enctype="multipart/form-data">
 								<div class="col-md-4">
 									<label for="profileImage" class="form-label">Image actuelle</label>
 									{% if data.frontCover %}
@@ -65,12 +65,11 @@
 									</div>
 									<div class="col-12 mb-3">
 										<label for="author" class="form-label">Auteur</label>
-										<input class="form-control" list="datalistOptions" id="authors" name="authorId" placeholder="{{data.author.name}}">
-										<datalist id="datalistOptions">
+										<select class="form-control" id="author" name="authorId">
 											{% for author in authors %}
-												<option value="{{author.id}}">{{author.name}}</option>
+												<option value="{{ author.id }}" {% if author.id == data.author.id %} selected {% endif %}>{{ author.name }}</option>
 											{% endfor %}
-										</datalist>
+										</select>
 									</div>
 									<div class="col-12 mb-3">
 										<label for="frontCover" class="form-label">Modifier l'image</label>
