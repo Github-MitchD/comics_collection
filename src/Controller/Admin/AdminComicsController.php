@@ -62,7 +62,7 @@ final class AdminComicsController extends AbstractController
         if (is_null($timeLeft)) return new Response();
 
         $page = $request->query->get('page', 1);
-        $limit = 10;
+        $limit = 6;
         $response = $this->client->request('GET', 'http://localhost:8989/comics', [
             'query' => [
                 'page' => $page,
@@ -219,5 +219,42 @@ final class AdminComicsController extends AbstractController
         }
 
         return $this->redirectToRoute('admin_comics');
+    }
+
+    /**
+     * Affiche le formulaire de modification d'un comic
+     * 
+     * @param Request $request La requête HTTP
+     * @param string $slug Le slug du comic
+     * @return Response La réponse HTTP
+     */
+    #[Route('/admin/les-comics/form/{slug}', name: 'admin_comics_edit', methods: ['GET'])]
+    public function editComic(Request $request, string $slug): Response
+    {
+        $timeLeft = $this->checkTokenAndRedirectIfNeeded($request);
+        if (is_null($timeLeft)) return new Response();
+
+        $apiUrl = 'http://localhost:8989/comics/title/' . $slug;
+        $response = $this->client->request('GET', $apiUrl);
+        $status = $response->getStatusCode();
+        if ($status >= 200 && $status < 300) {
+            // Récupère les données JSON
+            $comic = $response->toArray(); // renvoie un tableau associatif
+        } else {
+            $errorContent = $response->getContent(false);
+            $this->addFlash('danger', 'Erreur API Node: ' . $errorContent);
+            return $this->redirectToRoute('admin_comics');
+        }
+
+        $response = $this->client->request('GET', 'http://localhost:8989/authors');        
+        $authors = $response->toArray();
+
+        return $this->render('admin/comics/edit.html.twig', [
+            'data' => $comic,
+            'authors' => $authors['authors'],
+            'secondsLeft' => $timeLeft['secondsLeft'],
+            'minutesLeft' => $timeLeft['minutesLeft'],
+            'hoursLeft'   => $timeLeft['hoursLeft'],
+        ]);
     }
 }
