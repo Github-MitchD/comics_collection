@@ -62,6 +62,16 @@
 						</tbody>
 					</table>
 				</div>
+
+				<nav aria-label="Page navigation">
+					<ul class="pagination justify-content-center">
+						{% for i in 1..totalPages %}
+							<li class="page-item {% if i == currentPage %}active{% endif %}">
+								<a class="page-link" href="{{ path('admin_comics', { page: i }) }}">{{ i }}</a>
+							</li>
+						{% endfor %}
+					</ul>
+				</nav>
 			</main>
 		</div>
 	</div>
