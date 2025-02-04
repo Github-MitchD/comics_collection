@@ -1,0 +1,83 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Comics Collection - Ajouter un comic
+{% endblock %}
+
+{% block body %}
+
+	<div class="container-fluid">
+		<div class="row">
+
+			{% include 'admin/_parts/sidebar.html.twig' %}
+
+			<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+				<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-3 mb-3 border-bottom">
+					<h1 class="h2">Ajouter un comic</h1>
+					<div class="btn-toolbar mb-2 mb-md-0">
+						<a type="button" href="{{ path('admin_comics_add') }}" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1 me-2">
+							<i class="bi bi-plus-circle"></i>
+							Ajouter un comic
+						</a>
+						<a type="button" href="{{ path('admin_authors_add') }}" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1">
+							<i class="bi bi-plus-circle"></i>
+							Ajouter un auteur
+						</a>
+					</div>
+				</div>
+				<div class="container mt-4">
+					{% for type, messages in app.flashes %}
+						{% for message in messages %}
+							<div class="alert alert-{{ type == 'success' ? 'primary' : 'danger' }} alert-dismissible fade show m-auto mb-4" role="alert">
+								{{ message }}
+								<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+							</div>
+						{% endfor %}
+					{% endfor %}
+				</div>
+				<div class="container">
+					<div class="row justify-content-center">
+						<div class="col-md-10">
+							<form class="row g-3" action="{{ path('admin_comics_add_post') }}" method="post" enctype="multipart/form-data">
+								<div class="col-12">
+									<label for="title" class="form-label">Titre</label>
+									<input type="title" class="form-control" id="title" name="title">
+								</div>
+								<div class="col-md-3">
+									<label for="collection" class="form-label">Collection</label>
+									<input type="text" class="form-control" id="collection" name="collection">
+								</div>
+								<div class="col-md-3">
+									<label for="authors" class="form-label">Auteur</label>
+									<input class="form-control" list="datalistOptions" id="authors" name="authorId" placeholder="Recherche un auteur...">
+									<datalist id="datalistOptions">
+										{% for author in authors %}
+											<option value="{{author.id}}">{{author.name}}</option>
+										{% endfor %}
+									</datalist>
+								</div>
+								<div class="col-md-1">
+									<label for="tome" class="form-label">Tome</label>
+									<input type="number" min="1" class="form-control" id="tome" name="tome" placeholder="0">
+								</div>
+								<div class="col-md-5">
+									<label for="frontCover" class="form-label">Front Cover<small class="text-muted">
+											(format .jpeg, .jpg, .png)</small>
+									</label>
+									<input type="file" class="form-control" id="frontCover" name="frontCover">
+								</div>
+								<div class="col-12">
+									<label for="description" class="form-label">Description</label>
+									<textarea class="form-control" id="description" name="description" rows="5"></textarea>
+								</div>
+								<div class="col-12">
+									<button type="submit" class="btn btn-primary">Ajouter</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</main>
+		</div>
+	</div>
+
+{% endblock %}
