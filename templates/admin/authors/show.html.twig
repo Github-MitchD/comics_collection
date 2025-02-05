@@ -1,6 +1,6 @@
 {% extends 'base_admin.html.twig' %}
 
-{% block title %}Comics Collection - Admin: Les autheurs
+{% block title %}Comics Collection - Détails d'un auteur
 {% endblock %}
 
 {% block body %}
@@ -51,18 +51,18 @@
 				<hr>
 				<h4 class="mb-4">{{ data.comics|length }} Comics dans sa liste</h4>
 
-				<div class="row row-cols-2 row-cols-md-6 g-4">
+				<div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-6 g-4">
 					{% for comic in data.comics %}
 						<div class="col">
-							<div class="card h-100">
-								<img src="http://localhost:8989/public/uploads/comics/{{ comic.frontCover }}" class="card-img-top" alt="{{ comic.title }}">
+							<div class="card h-100 text-center shadow rounded-0 border-0">
+								<img src="http://localhost:8989/public/uploads/comics/{{ comic.frontCover }}" class="card-img-top rounded-0" alt="{{ comic.title }}">
 								<div class="card-body">
 									<h6 class="card-title">{{ comic.title|e }}</h6>
-									<p class="card-text">Tome
-										{{ comic.tome }}</p>
+									<h5><span class="badge text-bg-primary">Tome {{ comic.tome }}</span></h5>
 								</div>
-								<div class="card-footer">
-									<small class="text-body-secondary">Collection {{ comic.collection|e }}</small>
+								<div class="card-footer text-center">
+									<small class="text-body-secondary">Collection</small><br>
+									<small class="text-body-light">{{ comic.collection|e }}</small>
 								</div>
 							</div>
 						</div>
