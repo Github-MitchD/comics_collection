@@ -25,9 +25,6 @@ Comics Collection est une application web conçue pour gérer une collection de 
     composer install
     ```
 
-3. Configurez les variables d'environnement :
-    Copiez le fichier [.env](http://_vscodecontentref_/0) et renommez-le en `.env.local`, puis modifiez les valeurs selon votre configuration.
-
 ## Utilisation
 
 1. Démarrez le serveur de développement Symfony :
