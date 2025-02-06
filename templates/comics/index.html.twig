@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Comics Collection - Les comics
+{% endblock %}
+
+{% block body %}
+
+	<div class="container mt-4">
+		<h1 class="text-primary">
+			<b>Nos comics</b>
+		</h1>
+		<div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-4 pb-4 mb-2">
+			{% for comic in data.comics %}
+				<div class="col">
+					<a href="{{ path('app_comics_show', {slug: comic.slug}) }}" class="text-decoration-none">
+						<div class="card h-100 text-center shadow-sm rounded-0 border-0">
+							<img src="http://localhost:8989/public/uploads/comics/{{ comic.frontCover }}" class="card-img-top rounded-0" alt="{{ comic.title }}">
+							<div class="card-body">
+								<h6 class="card-title">{{ comic.title|e }}</h6>
+								<h5>
+									<span class="badge text-bg-primary">Tome
+										{{ comic.tome }}</span>
+								</h5>
+							</div>
+							<div class="card-footer text-center">
+								<small class="text-body-secondary">Collection</small><br>
+								<small class="text-body-light">{{ comic.collection|e }}</small>
+							</div>
+						</div>
+					</a>
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+
+	{% if totalPages > 1 %}
+		<nav aria-label="Page navigation">
+			<ul class="pagination justify-content-center align-items-center">
+				{% for i in 1..totalPages %}
+					<li class="page-item {% if i == currentPage %}active{% endif %}">
+						<a class="page-link px-3 rounded-0 border border-3 border-white shadow-sm {% if i == currentPage %}page-link-active{% endif %}" href="{{ path('app_comics', { page: i }) }}">{{ i }}</a>
+					</li>
+				{% endfor %}
+			</ul>
+		</nav>
+	{% endif %}
+
+{% endblock %}
