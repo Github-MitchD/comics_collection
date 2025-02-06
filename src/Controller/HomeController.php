@@ -37,17 +37,24 @@ final class HomeController extends AbstractController
     public function index(): Response
     {
         try {
-            $response = $this->client->request('GET', self::COMICS_API_URL.'/comics');
-            $data = $response->toArray();
+            $comicsResponse = $this->client->request('GET', self::COMICS_API_URL.'/comics', [
+                'query' => [
+                    'limit' => 10
+                ]
+            ]);
+            $comics = $comicsResponse->toArray();
+
+            $authorsResponse = $this->client->request('GET', self::COMICS_API_URL.'/authors');
+            $authors = $authorsResponse->toArray();
         } catch (TransportExceptionInterface | ClientExceptionInterface | ServerExceptionInterface $e) {
             // Gére les exceptions et retourne une réponse appropriée
             return $this->render('error.html.twig', [
                 'message' => 'Erreur lors de la récupération des données des comics.',
             ]);
         }
-
         return $this->render('home/index.html.twig', [
-            'data' => $data,
+            'comics' => $comics,
+            'authors' => $authors,
         ]);
     }
 }
