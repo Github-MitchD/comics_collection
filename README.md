@@ -8,9 +8,9 @@
 Comics Collection est une application web conçue pour gérer une collection de comics et d'auteurs. Elle permet d'ajouter, de modifier et de supprimer des comics et des auteurs, ainsi que de visualiser des statistiques sur la collection. Cette application consomme une API RESTful pour alimenter et synchroniser les données avec une base de données externe. Ce projet est conçu comme une démonstration et est disponible dans mon portfolio.
 
 ## Prérequis
-- PHP 7.4 ou supérieur
+- PHP 8.2 ou supérieur
 - Composer
-- Symfony CLI
+- Symfony 7.2 ou supérieur
 
 ## Installation
 
