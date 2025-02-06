@@ -4,12 +4,12 @@
 {% endblock %}
 
 {% block body %}
-	<div class="container mt-4 mb-4">
+	<div class="container my-4">
 		<h1 class="text-primary mb-4"><b>Nos auteurs</b></h1>
 		<div class="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-4">
 			{% for author in data.authors %}
 				<div class="col">
-					<a href="{{ path('admin_authors_show', { slug: author.slug }) }}" class="text-decoration-none">
+					<a href="{{ path('app_author_show', {slug: author.slug}) }}" class="text-decoration-none">
 						<div class="card h-100 text-center shadow-sm border-0" style="border-radius:0;border-top-left-radius: 50%;border-top-right-radius: 50%;">
 							<img src="{{ author.image }}" class="rounded-circle border border-3 border-secondary mx-auto d-block mt-2" width="140" height="140" alt="...">
 							<div class="card-body">
@@ -30,7 +30,7 @@
 			<ul class="pagination justify-content-center align-items-center">
 				{% for i in 1..totalPages %}
 					<li class="page-item {% if i == currentPage %}active{% endif %}">
-						<a class="page-link px-3 rounded-0 border border-3 border-white shadow-sm {% if i == currentPage %}page-link-active{% endif %}" href="{{ path('app_comics', { page: i }) }}">{{ i }}</a>
+						<a class="page-link px-3 rounded-0 border border-3 border-white shadow-sm {% if i == currentPage %}page-link-active{% endif %}" href="{{ path('app_authors', { page: i }) }}">{{ i }}</a>
 					</li>
 				{% endfor %}
 			</ul>
