@@ -13,7 +13,7 @@
 			<link rel="stylesheet" href="{{ asset('assets/css/app.css') }}">
 		{% endblock %}
 	</head>
-	<body>
+	<body class="d-flex flex-column min-vh-100">
 		<nav class="navbar navbar-expand-lg bg-body-tertiary shadow-sm">
 			<div class="container">
 				<a class="navbar-brand" href="{{ path('app_home') }}">
@@ -44,7 +44,9 @@
 			</div>
 		</nav>				
 
-		{% block body %}{% endblock %}
+		<main class="flex-fill">
+            {% block body %}{% endblock %}
+        </main>
 
 		{% include 'footer.html.twig' %}
 		
