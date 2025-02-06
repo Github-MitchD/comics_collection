@@ -4,12 +4,70 @@
 {% endblock %}
 
 {% block body %}
-	
+
 	<div class="container mt-4">
-		<ul>
-			{% for item in data.comics %}
-				<li>{{ item.title }}</li>
+		<h1 class="text-primary"><b>Nouveautés</b></h1>
+		<h4 class="text-secondary mb-3">Les derniers comics ajoutés sur notre site</h4>
+		<div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-4 pb-4 mb-2">
+			{% for comic in comics.comics %}
+				<div class="col">
+					<a href="{{ path('app_comics_show', { slug: comic.slug }) }}" class="text-decoration-none">
+						<div class="card h-100 text-center shadow-sm rounded-0 border-0">
+							<img src="http://localhost:8989/public/uploads/comics/{{ comic.frontCover }}" class="card-img-top rounded-0" alt="{{ comic.title }}">
+							<div class="card-body">
+								<h6 class="card-title">{{ comic.title|e }}</h6>
+								<h5>
+									<span class="badge text-bg-primary">Tome
+										{{ comic.tome }}</span>
+								</h5>
+							</div>
+							<div class="card-footer text-center">
+								<small class="text-body-secondary">Collection</small><br>
+								<small class="text-body-light">{{ comic.collection|e }}</small>
+							</div>
+						</div>
+					</a>
+				</div>
 			{% endfor %}
-		</ul>
+		</div>
+		<div class="d-flex justify-content-center mb-4">
+			<a href="{{ path('app_comics') }}" class="btn btn-primary shadow-sm rounded-0 border-0 btn-custom">VOIR PLUS DE COMICS</a>
+		</div>
+	</div>
+
+	<div class="container-fluid bg-primary text-white text-center py-5 m-100">
+        <h1>Inscrivez-vous pour recevoir les dernières nouveautés par email</h1>
+        <form action="" method="post" class="d-flex justify-content-center mt-4">
+            <input type="email" name="email" class="form-control w-25 rounded-0" placeholder="Votre email" required>
+            <button type="submit" class="btn btn-dark ms-3 rounded-0">S'inscrire</button>
+        </form>
+    </div>
+
+	<div class="container mt-4 pb-4">
+		<div class="mb-4">
+			<h1 class="text-primary"><b>Les auteurs</b></h1>
+			<h4 class="text-secondary mb-3">Découvrez les auteurs de nos comics</h4>
+			<div class="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-4">
+				{% for author in authors.authors %}
+					<div class="col">
+						<a href="" class="text-decoration-none">
+							<div class="card h-100 text-center shadow-sm border-0" style="border-radius:0;border-top-left-radius: 50%;border-top-right-radius: 50%;">
+								<img src="{{ author.image }}" class="rounded-circle border border-3 border-secondary mx-auto d-block mt-2" width="140" height="140" alt="...">
+								<div class="card-body">
+									<h5 class="card-title text-secondary">{{author.name}}</h5>
+								</div>
+								<div class="card-footer">
+									<small class="text-body-secondary">{{author.comicsCount}}
+										Comics</small>
+								</div>
+							</div>
+						</a>
+					</div>
+				{% endfor %}
+			</div>
+			<div class="d-flex justify-content-center mb-4">
+				<a href="" class="btn btn-primary shadow-sm rounded-0 border-0 btn-custom">TOUS NOS AUTEURS</a>
+			</div>
+		</div>
 	</div>
 {% endblock %}
