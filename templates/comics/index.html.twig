@@ -5,29 +5,31 @@
 
 {% block body %}
 
-	<div class="container mt-4">
+	<div class="container my-4">
 		<h1 class="text-primary">
 			<b>Nos comics</b>
 		</h1>
 		<div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-4 pb-4 mb-2">
 			{% for comic in data.comics %}
 				<div class="col">
-					<a href="{{ path('app_comics_show', {slug: comic.slug}) }}" class="text-decoration-none">
-						<div class="card h-100 text-center shadow-sm rounded-0 border-0">
+					<div class="card h-100 text-center shadow-sm rounded-0 border-0">
+						<a href="{{ path('app_comics_show', {slug: comic.slug}) }}" class="text-decoration-none">
 							<img src="http://localhost:8989/public/uploads/comics/{{ comic.frontCover }}" class="card-img-top rounded-0" alt="{{ comic.title }}">
-							<div class="card-body">
-								<h6 class="card-title">{{ comic.title|e }}</h6>
-								<h5>
-									<span class="badge text-bg-primary">Tome
-										{{ comic.tome }}</span>
-								</h5>
-							</div>
-							<div class="card-footer text-center">
-								<small class="text-body-secondary">Collection</small><br>
-								<small class="text-body-light">{{ comic.collection|e }}</small>
-							</div>
+						</a>
+						<div class="card-body">
+							<h6 class="card-title">{{ comic.title|e }}</h6>
+							<h5>
+								<span class="badge text-bg-primary">Tome
+									{{ comic.tome }}</span>
+							</h5>
 						</div>
-					</a>
+						<div class="card-footer text-center">
+							<small class="text-body-secondary">Collection</small><br>
+							<a href="{{ path('app_collection', {collection: comic.collection}) }}" class="text-body-light text-dark text-decoration-none">
+								<small>{{ comic.collection|e }}</small>
+							</a>
+						</div>
+					</div>
 				</div>
 			{% endfor %}
 		</div>
