@@ -8,8 +8,9 @@
 		<div class="row text-center">
 			<div class="col-md-12">
 				<h1 class="display-4">Oups ! Une erreur est survenue</h1>
+				<p class="lead">On a une erreur {{ statusCode }} !</p>
 				<p class="lead">{{ message }}</p>
-				<a href="{{ path('app_home') }}" class="btn btn-primary">Retour à la page d'accueil</a>
+				<a href="{{ path('app_home') }}" class="btn btn-primary shadow-sm rounded-0 border-0 btn-custom">Retour à la page d'accueil</a>
 			</div>
 		</div>
 	</div>
