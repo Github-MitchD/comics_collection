@@ -26,7 +26,7 @@ final class AuthorsController extends AbstractController
         $this->client = $client;
     }
     
-    #[Route('/authors', name: 'app_authors')]
+    #[Route('/les-auteurs', name: 'app_authors')]
     public function index(Request $request): Response
     {
         $page = $request->query->get('page', 1);
@@ -42,6 +42,16 @@ final class AuthorsController extends AbstractController
             'data' => $data,
             'currentPage' => $page,
             'totalPages' => $data['pages']
+        ]);
+    }
+
+    #[Route('/les-auteurs/{slug}', name: 'app_author_show', methods: ['GET'])]
+    public function show(string $slug): Response
+    {
+        $response = $this->client->request('GET', self::COMICS_API_URL.'/authors/name/'.$slug);
+        $data = $response->toArray();
+        return $this->render('authors/show.html.twig', [
+            'data' => $data
         ]);
     }
 }
