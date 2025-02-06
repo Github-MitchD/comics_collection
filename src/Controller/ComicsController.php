@@ -32,7 +32,7 @@ final class ComicsController extends AbstractController
      * @param Request $request La requête HTTP
      * @return Response La réponse HTTP
      */
-    #[Route('/comics', name: 'app_comics')]
+    #[Route('/les-comics', name: 'app_comics')]
     public function index(Request $request): Response
     {
         $page = $request->query->get('page', 1);
@@ -42,8 +42,18 @@ final class ComicsController extends AbstractController
                 'page' => $page,
                 'limit' => $limit
             ]
-        ]);       
-        $data = $response->toArray();
+        ]);
+        
+        $statusCode = $response->getStatusCode();
+        if ($statusCode >= 200 && $statusCode < 300) {
+            // Récupère les données JSON
+            $data = $response->toArray(); // renvoie un tableau associatif
+        } else {
+            return $this->render('error.html.twig', [
+                'statusCode' => $statusCode,
+                'message' => "La page demandée n'existe pas ou a été supprimée."
+            ]);
+        }        
         return $this->render('comics/index.html.twig', [
             'data' => $data,
             'currentPage' => $page,
@@ -58,23 +68,42 @@ final class ComicsController extends AbstractController
      * @param string $slug Le slug du comic
      * @return Response La réponse HTTP
      */
-    #[Route('/les-comics/details/{slug}', name: 'app_comics_show', methods: ['GET'])]
+    #[Route('/les-comics/{slug}', name: 'app_comics_show', methods: ['GET'])]
     public function showComic(string $slug): Response
     {
-        $apiUrl = 'http://localhost:8989/comics/title/' . $slug;
-
-        $response = $this->client->request('GET', $apiUrl);
-        $status = $response->getStatusCode();
-        if ($status >= 200 && $status < 300) {
+        $response = $this->client->request('GET', self::COMICS_API_URL.'/comics/title/' . $slug);
+        $statusCode = $response->getStatusCode();
+        if ($statusCode >= 200 && $statusCode < 300) {
             // Récupère les données JSON
             $comic = $response->toArray(); // renvoie un tableau associatif
         } else {
-            $errorContent = $response->getContent(false);
-            $this->addFlash('danger', 'Erreur API Node: ' . $errorContent);
-            return $this->redirectToRoute('admin_comics');
+            return $this->render('error.html.twig', [
+                'statusCode' => $statusCode,
+                'message' => "La page demandée n'existe pas ou a été supprimée."
+            ]);
         }
         return $this->render('comics/show.html.twig', [
             'data' => $comic
+        ]);
+    }
+
+    #[Route('/les-comics/collection/{collection}', name: 'app_collection', methods: ['GET'])]
+    public function showCollection(Request $request, string $collection): Response
+    {
+        $response = $this->client->request('GET', self::COMICS_API_URL.'/comics/collection/' . $collection);
+        $statusCode = $response->getStatusCode();
+        if ($statusCode >= 200 && $statusCode < 300) {
+            // Récupère les données JSON
+            $comics = $response->toArray(); // renvoie un tableau associatif
+        } else {
+            return $this->render('error.html.twig', [
+                'statusCode' => $statusCode,
+                'message' => "La page demandée n'existe pas ou a été supprimée."
+            ]);
+        }
+        return $this->render('comics/collection.html.twig', [
+            'data' => $comics,
+            'collectionName' => $collection,
         ]);
     }
 }
